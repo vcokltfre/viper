@@ -43,8 +43,7 @@ pub enum TokenType {
     Float(f64),
     String(String),
 
-    True,
-    False,
+    Bool(bool),
 
     EOF,
 }
