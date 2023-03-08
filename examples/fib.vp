@@ -1,0 +1,12 @@
+fib = (n int) => {
+    if (n < 2) {
+        return n
+    }
+    return fib(n - 1) + fib(n - 2)
+}
+
+main = () => {
+    for (i in 0..10) {
+        print(fib(i))
+    }
+}
