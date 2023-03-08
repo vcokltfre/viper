@@ -59,3 +59,9 @@ pub enum StmtNode {
 pub struct AST {
     pub nodes: Vec<StmtNode>,
 }
+
+impl AST {
+    pub fn new() -> AST {
+        AST { nodes: Vec::new() }
+    }
+}

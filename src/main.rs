@@ -18,6 +18,13 @@ fn main() {
     let mut lex = lexer::Lexer::new(filename.to_string(), data.to_string());
     let result = lex.tokenise();
 
+    if result.is_err() {
+        println!("Error: {}", result.err().unwrap());
+        return;
+    }
+
+    let mut parser = parser::Parser::new(result.unwrap());
+
     // TODO: Parser
-    println!("{:?}", result);
+    println!("{:?}", parser.parse());
 }
