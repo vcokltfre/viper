@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
     LParen, // (
@@ -48,6 +50,12 @@ pub enum TokenType {
     EOF,
 }
 
+impl fmt::Display for TokenType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
@@ -55,4 +63,5 @@ pub struct Token {
     pub column: u32,
     pub index: u32,
     pub filename: String,
+    pub length: u32,
 }

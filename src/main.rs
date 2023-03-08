@@ -16,15 +16,25 @@ fn main() {
     let data = fs::read_to_string(filename).expect("Unable to read file.");
 
     let mut lex = lexer::Lexer::new(filename.to_string(), data.to_string());
-    let result = lex.tokenise();
+    let lexer_result = lex.tokenise();
 
-    if result.is_err() {
-        println!("Error: {}", result.err().unwrap());
+    if lexer_result.is_err() {
+        println!("Error: {}", lexer_result.err().unwrap());
         return;
     }
 
-    let mut parser = parser::Parser::new(result.unwrap());
+    let mut parser = parser::Parser::new(
+        lexer_result.unwrap(),
+        data.lines().map(|s| s.to_string()).collect(),
+    );
+
+    let parser_result = parser.parse();
+
+    if parser_result.is_err() {
+        println!("Error: {}", parser_result.err().unwrap());
+        return;
+    }
 
     // TODO: Parser
-    println!("{:?}", parser.parse());
+    println!("{:?}", parser_result.unwrap());
 }

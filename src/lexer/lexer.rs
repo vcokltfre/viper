@@ -122,13 +122,14 @@ impl Lexer {
         }
     }
 
-    fn make_token(&self, token_type: TokenType) -> Token {
+    fn make_token(&self, token_type: TokenType, length: u32) -> Token {
         Token {
             token_type,
             line: self.line,
             column: self.column,
             index: self.index,
             filename: self.filename.clone(),
+            length,
         }
     }
 
@@ -175,9 +176,15 @@ impl Lexer {
         }
 
         if is_float {
-            Ok(self.make_token(TokenType::Float(number.parse().unwrap())))
+            Ok(self.make_token(
+                TokenType::Float(number.parse().unwrap()),
+                number.len().try_into().unwrap(),
+            ))
         } else {
-            Ok(self.make_token(TokenType::Int(number.parse().unwrap())))
+            Ok(self.make_token(
+                TokenType::Int(number.parse().unwrap()),
+                number.len().try_into().unwrap(),
+            ))
         }
     }
 
@@ -205,17 +212,19 @@ impl Lexer {
             return Err(self.error("Unexpected character in identifier: ".to_string() + &c));
         }
 
+        let ident_size = ident.len();
+
         match ident.as_str() {
-            "if" => return Ok(self.make_token(TokenType::KWIf)),
-            "else" => return Ok(self.make_token(TokenType::KWElse)),
-            "for" => return Ok(self.make_token(TokenType::KWFor)),
-            "return" => return Ok(self.make_token(TokenType::KWReturn)),
-            "break" => return Ok(self.make_token(TokenType::KWBreak)),
-            "continue" => return Ok(self.make_token(TokenType::KWContinue)),
-            "in" => return Ok(self.make_token(TokenType::KWIn)),
-            "true" => return Ok(self.make_token(TokenType::Bool(true))),
-            "false" => return Ok(self.make_token(TokenType::Bool(false))),
-            _ => Ok(self.make_token(TokenType::Ident(ident))),
+            "if" => return Ok(self.make_token(TokenType::KWIf, 2)),
+            "else" => return Ok(self.make_token(TokenType::KWElse, 4)),
+            "for" => return Ok(self.make_token(TokenType::KWFor, 3)),
+            "return" => return Ok(self.make_token(TokenType::KWReturn, 6)),
+            "break" => return Ok(self.make_token(TokenType::KWBreak, 5)),
+            "continue" => return Ok(self.make_token(TokenType::KWContinue, 8)),
+            "in" => return Ok(self.make_token(TokenType::KWIn, 2)),
+            "true" => return Ok(self.make_token(TokenType::Bool(true), 4)),
+            "false" => return Ok(self.make_token(TokenType::Bool(false), 5)),
+            _ => Ok(self.make_token(TokenType::Ident(ident), ident_size.try_into().unwrap())),
         }
     }
 
@@ -224,21 +233,21 @@ impl Lexer {
         self.advance();
 
         match c {
-            '+' => Ok(self.make_token(TokenType::OpAdd)),
-            '-' => Ok(self.make_token(TokenType::OpSub)),
-            '*' => Ok(self.make_token(TokenType::OpMul)),
-            '/' => Ok(self.make_token(TokenType::OpDiv)),
-            '%' => Ok(self.make_token(TokenType::OpMod)),
-            ',' => Ok(self.make_token(TokenType::Comma)),
-            '.' => Ok(self.make_token(TokenType::Dot)),
-            '!' => Ok(self.make_token(TokenType::OpNot)),
-            '=' => Ok(self.make_token(TokenType::OpAssign)),
-            '<' => Ok(self.make_token(TokenType::OpLt)),
-            '>' => Ok(self.make_token(TokenType::OpGt)),
-            '(' => Ok(self.make_token(TokenType::LParen)),
-            ')' => Ok(self.make_token(TokenType::RParen)),
-            '{' => Ok(self.make_token(TokenType::LBrace)),
-            '}' => Ok(self.make_token(TokenType::RBrace)),
+            '+' => Ok(self.make_token(TokenType::OpAdd, 1)),
+            '-' => Ok(self.make_token(TokenType::OpSub, 1)),
+            '*' => Ok(self.make_token(TokenType::OpMul, 1)),
+            '/' => Ok(self.make_token(TokenType::OpDiv, 1)),
+            '%' => Ok(self.make_token(TokenType::OpMod, 1)),
+            ',' => Ok(self.make_token(TokenType::Comma, 1)),
+            '.' => Ok(self.make_token(TokenType::Dot, 1)),
+            '!' => Ok(self.make_token(TokenType::OpNot, 1)),
+            '=' => Ok(self.make_token(TokenType::OpAssign, 1)),
+            '<' => Ok(self.make_token(TokenType::OpLt, 1)),
+            '>' => Ok(self.make_token(TokenType::OpGt, 1)),
+            '(' => Ok(self.make_token(TokenType::LParen, 1)),
+            ')' => Ok(self.make_token(TokenType::RParen, 1)),
+            '{' => Ok(self.make_token(TokenType::LBrace, 1)),
+            '}' => Ok(self.make_token(TokenType::RBrace, 1)),
 
             _ => Err(self.error("Unexpected character: ".to_string() + &c.to_string())),
         }
@@ -258,47 +267,47 @@ impl Lexer {
             ('*', '*') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpPow))
+                Ok(self.make_token(TokenType::OpPow, 2))
             }
             ('=', '=') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpEq))
+                Ok(self.make_token(TokenType::OpEq, 2))
             }
             ('>', '=') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpGe))
+                Ok(self.make_token(TokenType::OpGe, 2))
             }
             ('<', '=') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpLe))
+                Ok(self.make_token(TokenType::OpLe, 2))
             }
             ('!', '=') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpNe))
+                Ok(self.make_token(TokenType::OpNe, 2))
             }
             ('&', '&') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpAnd))
+                Ok(self.make_token(TokenType::OpAnd, 2))
             }
             ('|', '|') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::OpOr))
+                Ok(self.make_token(TokenType::OpOr, 2))
             }
             ('=', '>') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::Arrow))
+                Ok(self.make_token(TokenType::Arrow, 2))
             }
             ('.', '.') => {
                 self.advance();
                 self.advance();
-                Ok(self.make_token(TokenType::Range))
+                Ok(self.make_token(TokenType::Range, 2))
             }
 
             _ => self.get_single(),
@@ -352,14 +361,19 @@ impl Lexer {
             value.push(c);
         }
 
-        Ok(self.make_token(TokenType::String(value)))
+        let value_len = value.len();
+
+        Ok(self.make_token(
+            TokenType::String(value),
+            (value_len + 2).try_into().unwrap(),
+        ))
     }
 
     fn get_token(&mut self) -> TokenisationResult {
         self.skip_whitespace();
 
         if self.is_end() {
-            return Ok(self.make_token(TokenType::EOF));
+            return Ok(self.make_token(TokenType::EOF, 0));
         }
 
         let c = self.peek(0).unwrap();
@@ -378,7 +392,7 @@ impl Lexer {
                     return Ok(token);
                 }
                 self.advance();
-                Ok(self.make_token(TokenType::OpSub))
+                Ok(self.make_token(TokenType::OpSub, 1))
             }
             '+' | '*' | '/' | '%' | ',' | '.' | '!' | '=' | '<' | '>' | '&' | '|' | '(' | ')'
             | '{' | '}' => self.get_multi(),
