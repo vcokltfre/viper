@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::fmt;
 
 use super::super::lexer::*;
@@ -22,16 +23,19 @@ impl fmt::Display for ParsingError {
         }
         padding.push_str(&"~".repeat(self.token_size as usize));
 
+        let arrow = "-->".blue().bold();
+
         write!(
             f,
-            "Failed to parse file \"{}\" [{};{}] ({}): {}\n\n{}\n{}",
+            "Parsing failed: {}\n {} {}:{}:{} ({})\n\n   {}\n   {}",
+            self.message,
+            arrow,
             self.filename,
             self.line,
             self.column,
             self.index,
-            self.message,
             self.line_context,
-            padding,
+            padding.yellow().bold(),
         )
     }
 }

@@ -1,5 +1,7 @@
 use std::fmt;
 
+use colored::Colorize;
+
 use super::{Token, TokenType};
 
 #[derive(Debug)]
@@ -20,16 +22,19 @@ impl fmt::Display for TokenisationError {
         }
         padding.push('^');
 
+        let arrow = "-->".blue().bold();
+
         write!(
             f,
-            "Failed to tokenise file \"{}\" [{};{}] ({}): {}\n\n{}\n{}",
+            "Tokenisation failed: {}\n {} {}:{}:{} ({})\n\n   {}\n   {}",
+            self.message,
+            arrow,
             self.filename,
             self.line,
             self.column,
             self.index,
-            self.message,
             self.line_context,
-            padding,
+            padding.yellow().bold(),
         )
     }
 }
